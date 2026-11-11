@@ -48,7 +48,7 @@ class TfLiteTestActivity : AppCompatActivity() {
             testSuperResolution()
         }
         
-        statusTextView.text = "🔄 Loading FSRCNN model..."
+        statusTextView.text = "🔄 正在加载 FSRCNN 模型..."
     }
     
     private fun initializeModel() {
@@ -77,16 +77,16 @@ class TfLiteTestActivity : AppCompatActivity() {
                 
                 withContext(Dispatchers.Main) {
                     statusTextView.text = """
-                        ✅ FSRCNN Model Loaded Successfully!
+                        ✅ FSRCNN 模型加载成功！
                         
-                        📋 Model Details:
-                        • Input: ${inputTensor.shape().contentToString()}
-                        • Output: ${outputTensor.shape().contentToString()}
-                        • Data Type: ${inputTensor.dataType()}
+                        📋 模型详情：
+                        • 输入：${inputTensor.shape().contentToString()}
+                        • 输出：${outputTensor.shape().contentToString()}
+                        • 数据类型：${inputTensor.dataType()}
                         
-                        🎯 Ready to test with 256x192 thermal images!
+                        🎯 已准备好用 256x192 热成像图像进行测试！
                         
-                        Press the button to test super resolution.
+                        点击按钮开始测试超分辨率。
                     """.trimIndent()
                     
                     processButton.isEnabled = true
@@ -96,14 +96,14 @@ class TfLiteTestActivity : AppCompatActivity() {
                 Log.e(TAG, "Model loading failed", e)
                 withContext(Dispatchers.Main) {
                     statusTextView.text = """
-                        ❌ Model loading failed: ${e.message}
+                        ❌ 模型加载失败：${e.message}
                         
-                        🔍 Troubleshooting:
-                        • Make sure fsrcnn_x2.tflite is in app/src/main/assets/models/
-                        • Check if the conversion was successful
-                        • Verify TensorFlow Lite dependencies are added
+                        🔍 排查建议：
+                        • 确认 fsrcnn_x2.tflite 位于 app/src/main/assets/models/
+                        • 检查模型转换是否成功
+                        • 确认已添加 TensorFlow Lite 依赖
                         
-                        Error details: ${e.javaClass.simpleName}
+                        错误详情：${e.javaClass.simpleName}
                     """.trimIndent()
                 }
             }
@@ -114,7 +114,7 @@ class TfLiteTestActivity : AppCompatActivity() {
         lifecycleScope.launch(Dispatchers.IO) {
             try {
                 withContext(Dispatchers.Main) {
-                    statusTextView.text = "🔄 Processing thermal image..."
+                    statusTextView.text = "🔄 正在处理热成像图像..."
                     processButton.isEnabled = false
                 }
                 
@@ -140,18 +140,18 @@ class TfLiteTestActivity : AppCompatActivity() {
                     val scaleFactor = enhancedBitmap.width.toFloat() / originalBitmap.width
                     
                     statusTextView.text = """
-                        ✅ Super Resolution Complete!
+                        ✅ 超分辨率处理完成！
                         
-                        📊 Results:
-                        • Input: ${originalBitmap.width}x${originalBitmap.height} pixels
-                        • Output: ${enhancedBitmap.width}x${enhancedBitmap.height} pixels
-                        • Scale Factor: ${String.format("%.1f", scaleFactor)}x
-                        • Processing Time: ${processingTime}ms
+                        📊 结果：
+                        • 输入：${originalBitmap.width}x${originalBitmap.height} 像素
+                        • 输出：${enhancedBitmap.width}x${enhancedBitmap.height} 像素
+                        • 放大倍数：${String.format("%.1f", scaleFactor)}x
+                        • 处理耗时：${processingTime}ms
                         
-                        🎯 Perfect for thermal images!
-                        ${if (processingTime < 30) "⚡ Real-time capable!" else "⏱️ Consider optimization"}
+                        🎯 非常适合热成像图像！
+                        ${if (processingTime < 30) "⚡ 可实时处理！" else "⏱️ 建议进一步优化"}
                         
-                        Press button to test again with different image.
+                        点击按钮可用不同图像再次测试。
                     """.trimIndent()
                     
                     processButton.isEnabled = true
@@ -161,15 +161,15 @@ class TfLiteTestActivity : AppCompatActivity() {
                 Log.e(TAG, "Processing failed", e)
                 withContext(Dispatchers.Main) {
                     statusTextView.text = """
-                        ❌ Processing failed: ${e.message}
+                        ❌ 处理失败：${e.message}
                         
-                        🔍 Error details:
+                        🔍 错误详情：
                         ${e.javaClass.simpleName}: ${e.localizedMessage}
                         
-                        This might be due to:
-                        • Model input/output format mismatch
-                        • Memory issues
-                        • Incorrect preprocessing
+                        可能的原因：
+                        • 模型输入/输出格式不匹配
+                        • 内存不足
+                        • 预处理不正确
                     """.trimIndent()
                     processButton.isEnabled = true
                 }

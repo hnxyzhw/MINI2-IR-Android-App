@@ -77,12 +77,12 @@ class MainActivity : AppCompatActivity() {
                         runOnUiThread {
                             if (granted) {
                                 Log.i(TAG, "USB permission granted")
-                                showSuccess("USB permission granted")
+                                showSuccess("USB 权限已授予")
                                 updateDeviceInfo(device)
                                 updateButtonStates()
                             } else {
                                 Log.i(TAG, "USB permission denied")
-                                showError("USB permission denied. Please grant permission to use the thermal camera.") {
+                                showError("USB 权限被拒绝。请授予权限以使用热成像相机。") {
                                     findAndRequestPermission()
                                 }
                                 currentDevice = null
@@ -176,7 +176,7 @@ class MainActivity : AppCompatActivity() {
                 "VID: 0x$vid\nPID: 0x$pid"
             } else {
                 Log.i(TAG, "Setting 'No device connected' text")
-                "No device connected"
+                "未连接设备"
             }
             
             try {
@@ -248,7 +248,7 @@ class MainActivity : AppCompatActivity() {
         // If we have camera permission, proceed with USB permission
         val cameraDevice = findCameraDevice()
         if (cameraDevice == null) {
-            showError("No compatible camera found. Please connect your camera.")
+            showError("未找到兼容的相机。请连接您的相机。")
             return
         }
 
@@ -279,7 +279,7 @@ class MainActivity : AppCompatActivity() {
             Log.i(TAG, "USB permission request sent")
         } catch (e: Exception) {
             Log.e(TAG, "Error requesting USB permission", e)
-            showError("Error requesting USB permission: ${e.message}") {
+            showError("申请 USB 权限时出错：${e.message}") {
                 findAndRequestPermission()
             }
         }
@@ -299,7 +299,7 @@ class MainActivity : AppCompatActivity() {
                     findAndRequestPermission()
                 } else {
                     Log.w(TAG, "Camera permission denied")
-                    showError("Camera permission is required to use the thermal camera")
+                    showError("使用热成像相机需要相机权限")
                 }
             }
         }
@@ -320,7 +320,7 @@ class MainActivity : AppCompatActivity() {
         val device = currentDevice
         if (device == null || !usbManager.hasPermission(device)) {
             Log.w(TAG, "Cannot launch camera: device not found or no permission")
-            showError("Cannot open camera: device not found or no permission") {
+            showError("无法打开相机：未找到设备或没有权限") {
                 findAndRequestPermission()
             }
             updateButtonStates()
@@ -345,7 +345,7 @@ class MainActivity : AppCompatActivity() {
     private fun showError(message: String, action: (() -> Unit)? = null) {
         val snackbar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         action?.let { 
-            snackbar.setAction("Retry") { it() }
+            snackbar.setAction("重试") { it() }
         }
         snackbar.show()
     }
@@ -356,21 +356,21 @@ class MainActivity : AppCompatActivity() {
 
     private fun showManageDevicesDialog() {
         val deviceList = DeviceConfigs.configs.entries.joinToString("\n") { (pid, config) ->
-            "PID: 0x${pid.toString(16)}\n" +
-            "Resolution: ${config.width}x${config.height}\n" +
-            "FPS: ${config.fps}\n" +
-            "Type: ${when(config.deviceType) {
+            "PID：0x${pid.toString(16)}\n" +
+            "分辨率：${config.width}x${config.height}\n" +
+            "FPS：${config.fps}\n" +
+            "类型：${when(config.deviceType) {
                 3 -> "MINI2-384"
                 7 -> "MINI2-256"
                 8 -> "MINI2-640"
-                else -> "Unknown"
+                else -> "未知"
             }}\n"
         }
 
         AlertDialog.Builder(this)
-            .setTitle("Device Configurations")
-            .setMessage(if (deviceList.isEmpty()) "No device configurations found" else deviceList)
-            .setPositiveButton("OK", null)
+            .setTitle("设备配置")
+            .setMessage(if (deviceList.isEmpty()) "未找到设备配置" else deviceList)
+            .setPositiveButton("确定", null)
             .show()
     }
 
@@ -378,9 +378,9 @@ class MainActivity : AppCompatActivity() {
         Log.i(TAG, "showAddDeviceDialog: Starting dialog creation")
         
         val dialog = AlertDialog.Builder(this)
-            .setTitle("Add New Device Configuration")
+            .setTitle("添加新设备配置")
             .setView(R.layout.dialog_add_device)
-            .setPositiveButton("Add") { dialog, _ ->
+            .setPositiveButton("添加") { dialog, _ ->
                 val dialogView = (dialog as AlertDialog).findViewById<View>(android.R.id.content)
                 val pidEdit = dialogView?.findViewById<TextInputEditText>(R.id.pidEdit)
                 val deviceTypeSpinner = dialogView?.findViewById<Spinner>(R.id.deviceTypeSpinner)
@@ -424,13 +424,13 @@ class MainActivity : AppCompatActivity() {
                     // Add the configuration
                     DeviceConfigs.configs = DeviceConfigs.configs + (pid to newConfig)
                     
-                    showSuccess("Device configuration added")
+                    showSuccess("设备配置已添加")
                 } catch (e: Exception) {
                     Log.e(TAG, "Error adding device configuration", e)
-                    showError("Invalid input: ${e.message}")
+                    showError("输入无效：${e.message}")
                 }
             }
-            .setNegativeButton("Cancel", null)
+            .setNegativeButton("取消", null)
             .create()
         
         dialog.setOnShowListener {
@@ -451,7 +451,7 @@ class MainActivity : AppCompatActivity() {
             deviceTypeSpinner?.onItemSelectedListener = object : AdapterView.OnItemSelectedListener {
                 override fun onItemSelected(parent: AdapterView<*>?, view: View?, position: Int, id: Long) {
                     val selectedType = DeviceConfigs.deviceTypes.values.elementAt(position)
-                    resolutionText?.text = "Resolution: ${selectedType.width}x${selectedType.height}"
+                    resolutionText?.text = "分辨率：${selectedType.width}x${selectedType.height}"
                     
                     // Update FPS spinner
                     val fpsAdapter = ArrayAdapter(

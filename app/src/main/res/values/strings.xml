@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <string name="app_name">ircmd_handle</string>
-    <string name="connect">Open Camera</string>
+    <string name="app_name">MINI2 红外热像仪</string>
+    <string name="connect">打开相机</string>
 </resources>

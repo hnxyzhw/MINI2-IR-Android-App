@@ -39,6 +39,6 @@
         android:background="?attr/selectableItemBackgroundBorderless"
         android:padding="8dp"
         android:src="@android:drawable/ic_menu_delete"
-        android:contentDescription="Delete device configuration"/>
+        android:contentDescription="删除设备配置"/>
 
-</LinearLayout> 
+</LinearLayout>

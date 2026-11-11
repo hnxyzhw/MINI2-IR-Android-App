@@ -9,7 +9,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"
-        android:hint="Product ID (hex)">
+        android:hint="产品 ID（十六进制）">
 
         <com.google.android.material.textfield.TextInputEditText
             android:id="@+id/pidEdit"
@@ -40,4 +40,4 @@
         android:layout_height="wrap_content"
         android:layout_marginBottom="8dp"/>
 
-</LinearLayout> 
+</LinearLayout>

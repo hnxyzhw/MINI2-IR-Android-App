@@ -22,7 +22,7 @@
             android:id="@+id/deviceInfoText"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="No device connected"
+            android:text="未连接设备"
             android:textColor="@android:color/white"
             android:textSize="16sp"
             android:textStyle="bold"
@@ -34,7 +34,7 @@
             android:id="@+id/addDeviceButton"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="Add New Device Configuration"
+            android:text="添加新设备配置"
             android:layout_marginTop="8dp"
             style="?android:attr/buttonBarButtonStyle"/>
     </LinearLayout>
@@ -53,21 +53,21 @@
             android:id="@+id/manageDevicesButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Manage Device Configurations"
+            android:text="管理设备配置"
             android:layout_marginBottom="16dp" />
 
         <Button
             android:id="@+id/requestPermissionButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Request USB Permission"
+            android:text="申请USB权限"
             android:layout_marginBottom="16dp" />
 
         <Button
             android:id="@+id/openCameraButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="Open Camera"
+            android:text="打开相机"
             android:enabled="false"
             android:layout_marginBottom="16dp" />
 
@@ -75,7 +75,7 @@
             android:id="@+id/testSuperResolutionButton"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="🔥 Test Super Resolution"
+            android:text="🔥 测试超分辨率"
             android:backgroundTint="#FF6B35" />
 
     </LinearLayout>

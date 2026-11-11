@@ -195,7 +195,7 @@ class CameraActivity : AppCompatActivity() {
                             openUsbCamera(device)
                         } else {
                             Log.i(TAG, "usbPermissionReceiver: Permission denied")
-                            showError("USB permission denied. Camera cannot be opened.") {
+                            showError("USB 权限被拒绝，无法打开相机。") {
                                 finish()
                             }
                         }
@@ -375,7 +375,7 @@ class CameraActivity : AppCompatActivity() {
                 Log.i(TAG, "onCreate: Successfully registered USB permission receiver")
             } catch (e: Exception) {
                 Log.e(TAG, "onCreate: Failed to register receiver", e)
-                showError("Failed to register USB receiver: ${e.message}") {
+                showError("注册 USB 接收器失败：${e.message}") {
                     finish()
                 }
                 return
@@ -411,7 +411,7 @@ class CameraActivity : AppCompatActivity() {
             
         } catch (e: Exception) {
             Log.e(TAG, "Error in onCreate", e)
-            showError("Error initializing camera: ${e.message}") {
+            showError("相机初始化出错：${e.message}") {
                 finish()
             }
         }
@@ -529,7 +529,7 @@ class CameraActivity : AppCompatActivity() {
     private fun showError(message: String, action: (() -> Unit)? = null) {
         val snackbar = Snackbar.make(binding.root, message, Snackbar.LENGTH_LONG)
         action?.let { 
-            snackbar.setAction("Retry") { it() }
+            snackbar.setAction("重试") { it() }
         }
         snackbar.show()
     }
@@ -545,8 +545,8 @@ class CameraActivity : AppCompatActivity() {
     ) {
         if (!ircmdManager.isInitialized()) {
             Log.e(TAG, "$commandName failed: Camera not initialized")
-            updateLastCommand(commandName, value, false, "Camera not initialized", IrcmdManager.ERROR_NOT_INITIALIZED)
-            showError("$commandName failed: Camera not initialized")
+            updateLastCommand(commandName, value, false, "相机未初始化", IrcmdManager.ERROR_NOT_INITIALIZED)
+            showError("$commandName 设置失败：相机未初始化")
             return
         }
 
@@ -560,26 +560,26 @@ class CameraActivity : AppCompatActivity() {
                     IrcmdManager.ERROR_SUCCESS -> {
                         Log.i(TAG, "$commandName set to $value successfully")
                         updateLastCommand(commandName, value, true)
-                        showSuccess("$commandName set to $value")
+                        showSuccess("$commandName 已设置为 $value")
                     }
                     IrcmdManager.ERROR_NOT_INITIALIZED -> {
                         Log.e(TAG, "$commandName failed: Camera not initialized (code: $result)")
-                        updateLastCommand(commandName, value, false, "Camera not initialized", result)
-                        showError("$commandName failed: Camera not initialized")
+                        updateLastCommand(commandName, value, false, "相机未初始化", result)
+                        showError("$commandName 设置失败：相机未初始化")
                     }
                     else -> {
                         val errorMsg = ircmdManager.getLastErrorMessage()
                         Log.e(TAG, "$commandName failed: $errorMsg (code: $result)")
                         updateLastCommand(commandName, value, false, errorMsg, result)
-                        showError("$commandName failed: $errorMsg") {
+                        showError("$commandName 设置失败：$errorMsg") {
                             executeCameraCommand(commandName, value, operation)
                         }
                     }
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error executing $commandName", e)
-                updateLastCommand(commandName, value, false, e.message ?: "Unknown error", -99)
-                showError("$commandName failed: ${e.message}") {
+                updateLastCommand(commandName, value, false, e.message ?: "未知错误", -99)
+                showError("$commandName 设置失败：${e.message}") {
                     executeCameraCommand(commandName, value, operation)
                 }
             }
@@ -620,7 +620,7 @@ class CameraActivity : AppCompatActivity() {
             // Check if this is our supported device
             if (!isOurDevice(device)) {
                 Log.w(TAG, "Device is not compatible with this app")
-                showError("This device is not compatible with the thermal camera app.") {
+                showError("此设备与热成像相机应用不兼容。") {
                     finish()
                 }
                 return
@@ -630,7 +630,7 @@ class CameraActivity : AppCompatActivity() {
             val deviceConfig = getDeviceConfig(device)
             if (deviceConfig == null) {
                 Log.w(TAG, "No configuration found for device PID: 0x${device.productId.toString(16)}")
-                showError("Camera model not recognized. Please add device configuration in Main Activity.") {
+                showError("无法识别相机型号。请在主界面添加设备配置。") {
                     // Go back to main activity to add device config
                     finish()
                 }
@@ -670,7 +670,7 @@ class CameraActivity : AppCompatActivity() {
         val deviceConfig = DeviceConfigs.configs[device.productId]
         if (deviceConfig == null) {
             Log.e(TAG, "No configuration found for device PID: 0x${device.productId.toString(16)}")
-            showError("Unsupported camera model. Please add device configuration.") {
+            showError("不支持的相机型号。请添加设备配置。") {
                 finish()
             }
             return
@@ -681,7 +681,7 @@ class CameraActivity : AppCompatActivity() {
         // This method should only be called when permission is already granted
         if (!usbManager.hasPermission(device)) {
             Log.e(TAG, "openUsbCamera called without USB permission")
-            showError("USB permission required. Please grant permission and try again.") {
+            showError("需要 USB 权限。请授予权限后重试。") {
                 requestUsbPermission(device)
             }
             return
@@ -690,7 +690,7 @@ class CameraActivity : AppCompatActivity() {
         val connection = usbManager.openDevice(device)
         if (connection == null) {
             Log.e(TAG, "Could not open USB device connection")
-            showError("Failed to connect to camera. Please check USB connection and try again.") {
+            showError("连接相机失败。请检查 USB 连接后重试。") {
                 // Retry opening the camera
                 openUsbCamera(device)
             }
@@ -701,7 +701,7 @@ class CameraActivity : AppCompatActivity() {
             val fd = connection.fileDescriptor
             if (fd == -1) {
                 Log.e(TAG, "Invalid file descriptor from USB connection")
-                showError("Camera connection error. Please disconnect and reconnect the USB device.") {
+                showError("相机连接错误。请断开并重新连接 USB 设备。") {
                     finish()
                 }
                 return
@@ -710,7 +710,7 @@ class CameraActivity : AppCompatActivity() {
             // Pass the device configuration to native code
             if (!nativeOpenUvcCamera(fd, deviceConfig.width, deviceConfig.height, deviceConfig.fps)) {
                 Log.e(TAG, "Failed to initialize UVC camera with native library")
-                showError("Camera initialization failed. Please check device compatibility.") {
+                showError("相机初始化失败。请检查设备兼容性。") {
                     finish()
                 }
                 return
@@ -723,7 +723,7 @@ class CameraActivity : AppCompatActivity() {
             val ircmdManager = IrcmdManager.getInstance()
             if (!ircmdManager.init(fd, deviceConfig.deviceType)) {
                 Log.e(TAG, "Failed to initialize thermal camera control interface")
-                showError("Thermal camera controls failed to initialize. Basic video streaming may still work.") {
+                showError("热成像相机控制初始化失败。基础视频流可能仍可正常工作。") {
                     // Allow continuing with just video streaming
                 }
                 return
@@ -756,11 +756,11 @@ class CameraActivity : AppCompatActivity() {
                 updateFrameRateButtonColors(deviceConfig.fps)
             }
             
-            showSuccess("Camera connected successfully!")
+            showSuccess("相机连接成功！")
 
         } catch (e: Exception) {
             Log.e(TAG, "Error opening camera", e)
-            showError("Camera initialization error: ${e.message}") {
+            showError("相机初始化错误：${e.message}") {
                 finish()
             }
         }
@@ -814,7 +814,7 @@ class CameraActivity : AppCompatActivity() {
                     }
                 } else {
                     Log.e(TAG, "❌ Failed to start UVC streaming - check USB connection and permissions")
-                    showError("Failed to start camera streaming") {
+                    showError("启动相机流式传输失败") {
                         finish()
                     }
                 }
@@ -894,7 +894,7 @@ class CameraActivity : AppCompatActivity() {
         val deviceList = usbManager.deviceList
         
         if (deviceList.isEmpty()) {
-            showError("No USB devices found") {
+            showError("未找到 USB 设备") {
                 finish()
             }
             return
@@ -916,32 +916,32 @@ class CameraActivity : AppCompatActivity() {
             }
         }
         
-        showError("No compatible camera found") {
+        showError("未找到兼容的相机") {
             finish()
         }
     }
 
     private fun updateLastCommand(command: String, value: Int, success: Boolean = true, errorMessage: String? = null, errorCode: Int? = null) {
         runOnUiThread {
-            val status = if (success) "Success" else "Failed"
+            val status = if (success) "成功" else "失败"
             val errorText = if (!success && errorMessage != null) {
                 val codeText = if (errorCode != null) " (code: $errorCode)" else ""
                 " - $errorMessage$codeText"
             } else ""
-            binding.lastCommandText.text = "Last Command: $command = $value ($status$errorText)"
+            binding.lastCommandText.text = "最近指令：$command = $value（$status$errorText）"
         }
     }
 
     private fun performFFC() {
         if (!ircmdManager.isInitialized()) {
             Log.e(TAG, "FFC failed: Camera not initialized (code: ${IrcmdManager.ERROR_NOT_INITIALIZED})")
-            updateLastCommand("FFC", 0, false, "Camera not initialized", IrcmdManager.ERROR_NOT_INITIALIZED)
+            updateLastCommand("FFC", 0, false, "相机未初始化", IrcmdManager.ERROR_NOT_INITIALIZED)
             return
         }
 
         // Disable button during FFC
         binding.ffcButton.isEnabled = false
-        binding.ffcButton.text = "FFC in progress..."
+        binding.ffcButton.text = "FFC 进行中..."
 
         // Use lifecycleScope to run FFC operation
         lifecycleScope.launch {
@@ -957,24 +957,24 @@ class CameraActivity : AppCompatActivity() {
                 when (result) {
                     IrcmdManager.ERROR_SUCCESS -> {
                         updateLastCommand("FFC", 0, true)
-                        showSuccess("FFC completed successfully")
+                        showSuccess("FFC 完成")
                     }
                     IrcmdManager.ERROR_NOT_INITIALIZED -> {
                         Log.e(TAG, "FFC failed: Camera not initialized (code: $result)")
                         updateLastCommand("FFC", 0, false, "Camera not initialized", result)
-                        showError("FFC failed: Camera not initialized")
+                        showError("FFC 失败：相机未初始化")
                     }
                     IrcmdManager.ERROR_USB_WRITE -> {
                         Log.e(TAG, "FFC failed: USB write error (code: $result)")
                         updateLastCommand("FFC", 0, false, "Failed to send FFC command", result)
-                        showError("FFC failed: USB communication error") {
+                        showError("FFC 失败：USB 通信错误") {
                             performFFC()
                         }
                     }
                     else -> {
                         Log.e(TAG, "FFC failed: ${ircmdManager.getLastErrorMessage()} (code: $result)")
                         updateLastCommand("FFC", 0, false, ircmdManager.getLastErrorMessage(), result)
-                        showError("FFC failed: ${ircmdManager.getLastErrorMessage()}") {
+                        showError("FFC 失败：${ircmdManager.getLastErrorMessage()}") {
                             performFFC()
                         }
                     }
@@ -983,8 +983,8 @@ class CameraActivity : AppCompatActivity() {
                 Log.e(TAG, "Error performing FFC", e)
                 binding.ffcButton.isEnabled = true
                 binding.ffcButton.text = "FFC"
-                updateLastCommand("FFC", 0, false, e.message ?: "Unknown error", -99)
-                showError("FFC failed: ${e.message}") {
+                updateLastCommand("FFC", 0, false, e.message ?: "未知错误", -99)
+                showError("FFC 失败：${e.message}") {
                     performFFC()
                 }
             }
@@ -1010,20 +1010,20 @@ class CameraActivity : AppCompatActivity() {
                 when (result) {
                     IrcmdManager.ERROR_SUCCESS -> {
                         Log.i(TAG, "Registry brightness set to $level successfully")
-                        showSuccess("Registry brightness set to $level")
+                        showSuccess("寄存器亮度已设置为 $level")
                     }
                     IrcmdManager.ERROR_NOT_INITIALIZED -> {
                         Log.e(TAG, "Registry brightness failed: Camera not initialized")
-                        showError("Registry brightness failed: Camera not initialized")
+                        showError("寄存器亮度设置失败：相机未初始化")
                     }
                     else -> {
                         Log.e(TAG, "Registry brightness failed with error code: $result")
-                        showError("Registry brightness failed: Error $result")
+                        showError("寄存器亮度设置失败：错误 $result")
                     }
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Exception in registry brightness", e)
-                showError("Registry brightness failed: ${e.message}")
+                showError("寄存器亮度设置失败：${e.message}")
             }
         }
     }
@@ -1047,7 +1047,7 @@ class CameraActivity : AppCompatActivity() {
         // Original implementation - kept for reference
         /*
         if (!ircmdManager.isInitialized()) {
-            Toast.makeText(this, "Camera not initialized", Toast.LENGTH_SHORT).show()
+            Toast.makeText(this, "相机未初始化", Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -1061,19 +1061,19 @@ class CameraActivity : AppCompatActivity() {
                     if (result == IrcmdManager.ERROR_SUCCESS) {
                         Log.i(TAG, "Current brightness level: $level")
                         brightnessSlider.progress = level
-                        Toast.makeText(this, "Current brightness: $level", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "当前亮度：$level", Toast.LENGTH_SHORT).show()
                     } else {
                         // Use the last set value instead
                         val lastValue = ircmdManager.getLastSetBrightness()
                         Log.w(TAG, "Using last set brightness value: $lastValue")
                         brightnessSlider.progress = lastValue
-                        Toast.makeText(this, "Using last set brightness: $lastValue", Toast.LENGTH_SHORT).show()
+                        Toast.makeText(this, "使用最近设置的亮度：$lastValue", Toast.LENGTH_SHORT).show()
                     }
                 }
             } catch (e: Exception) {
                 Log.e(TAG, "Error getting brightness", e)
                 runOnThread {
-                    Toast.makeText(this, "Error getting brightness: ${e.message}", Toast.LENGTH_SHORT).show()
+                    Toast.makeText(this, "获取亮度出错：${e.message}", Toast.LENGTH_SHORT).show()
                 }
             }
         }.start()
@@ -1185,18 +1185,18 @@ class CameraActivity : AppCompatActivity() {
             ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.CAMERA) -> {
                 Log.i(TAG, "Should show camera permission rationale")
                 AlertDialog.Builder(this)
-                    .setTitle("Camera Permission Required")
-                    .setMessage("This app needs camera permission to access the thermal camera. Please grant camera permission to continue.")
-                    .setPositiveButton("Grant Permission") { _, _ ->
+                    .setTitle("需要相机权限")
+                    .setMessage("本应用需要相机权限才能访问热成像相机。请授予相机权限后继续。")
+                    .setPositiveButton("授予权限") { _, _ ->
                         ActivityCompat.requestPermissions(
                             this,
                             arrayOf(Manifest.permission.CAMERA),
                             CAMERA_PERMISSION_REQUEST_CODE
                         )
                     }
-                    .setNegativeButton("Cancel") { dialog, _ ->
+                    .setNegativeButton("取消") { dialog, _ ->
                         dialog.dismiss()
-                        showError("Camera permission is required to use the thermal camera") {
+                        showError("使用热成像相机需要相机权限") {
                             finish()
                         }
                     }
@@ -1236,7 +1236,7 @@ class CameraActivity : AppCompatActivity() {
                     }
                 } else {
                     Log.w(TAG, "Camera permission denied")
-                    showError("Camera permission is required to use the thermal camera") {
+                    showError("使用热成像相机需要相机权限") {
                         finish()
                     }
                 }
@@ -1244,19 +1244,19 @@ class CameraActivity : AppCompatActivity() {
             STORAGE_PERMISSION_REQUEST_CODE -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Log.i(TAG, "Storage permission granted")
-                    showSuccess("Storage permission granted! You can now save enhanced images.")
+                    showSuccess("存储权限已授予！现在可以保存增强图像。")
                 } else {
                     Log.w(TAG, "Storage permission denied")
-                    showError("Storage permission denied. Cannot save images to gallery.")
+                    showError("存储权限被拒绝。无法将图像保存到相册。")
                 }
             }
             AUDIO_PERMISSION_REQUEST_CODE -> {
                 if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     Log.i(TAG, "Audio permission granted")
-                    showSuccess("Audio permission granted! Video recording will include audio.")
+                    showSuccess("音频权限已授予！视频录制将包含音频。")
                 } else {
                     Log.w(TAG, "Audio permission denied")
-                    showError("Audio permission denied. Video recording will be silent.")
+                    showError("音频权限被拒绝。视频录制将无声。")
                 }
             }
         }
@@ -1284,7 +1284,7 @@ class CameraActivity : AppCompatActivity() {
                 
                 if (currentTime - permissionRequestTime > PERMISSION_REQUEST_TIMEOUT) {
                     Log.w(TAG, "Permission request timed out after ${PERMISSION_REQUEST_TIMEOUT}ms")
-                    showError("USB permission request timed out. Please try connecting the camera again.") {
+                    showError("USB 权限请求超时。请重新连接相机后重试。") {
                         currentDevice?.let { device ->
                             requestUsbPermission(device)
                         } ?: finish()
@@ -1339,7 +1339,7 @@ class CameraActivity : AppCompatActivity() {
             val deviceConfig = DeviceConfigs.configs[device.productId]
             if (deviceConfig == null) {
                 Log.e(TAG, "No device configuration found")
-                showError("No device configuration found")
+                showError("未找到设备配置")
                 return
             }
             
@@ -1367,7 +1367,7 @@ class CameraActivity : AppCompatActivity() {
                         
                         Log.i(TAG, "✅ UVC frame rate changed: requested ${fps}fps, actual ${actualFps}fps")
                         updateLastCommand("Frame Rate", actualFps, true)
-                        showSuccess("Frame rate changed to ${actualFps}fps via UVC")
+                        showSuccess("帧率已通过 UVC 切换为 ${actualFps}fps")
                         
                         // Update button colors to show current selection
                         updateFrameRateButtonColors(actualFps)
@@ -1375,13 +1375,13 @@ class CameraActivity : AppCompatActivity() {
                     } else {
                         Log.e(TAG, "❌ UVC framerate change failed")
                         updateLastCommand("Frame Rate", fps, false, "UVC control failed", -1)
-                        showError("UVC framerate change failed - camera may not support ${fps}fps")
+                        showError("UVC 帧率切换失败 - 相机可能不支持 ${fps}fps")
                     }
                     
                 } catch (e: Exception) {
                     Log.e(TAG, "Error changing frame rate via UVC", e)
-                    updateLastCommand("Frame Rate", fps, false, e.message ?: "Unknown error", -99)
-                    showError("UVC framerate change failed: ${e.message}")
+                    updateLastCommand("帧率", fps, false, e.message ?: "未知错误", -99)
+                    showError("UVC 帧率切换失败：${e.message}")
                 } finally {
                     // Re-enable buttons
                     binding.frameRate25Button.isEnabled = true
@@ -1390,7 +1390,7 @@ class CameraActivity : AppCompatActivity() {
             }
         } ?: run {
             Log.e(TAG, "No current device for framerate change")
-            showError("No device connected")
+            showError("未连接设备")
         }
     }
     
@@ -1421,16 +1421,16 @@ class CameraActivity : AppCompatActivity() {
                     Log.i(TAG, "✅ Camera restarted successfully with ${deviceConfig.fps}fps")
                 } else {
                     Log.e(TAG, "❌ Failed to re-initialize camera with new framerate")
-                    showError("Failed to restart camera with new framerate")
+                    showError("使用新的帧率重启相机失败")
                 }
             } else {
                 Log.e(TAG, "❌ Failed to re-open USB device connection")
-                showError("Failed to re-open camera connection")
+                showError("重新打开相机连接失败")
             }
             
         } catch (e: Exception) {
             Log.e(TAG, "Error restarting camera", e)
-            showError("Error restarting camera: ${e.message}")
+            showError("重启相机时出错：${e.message}")
         }
     }
     
@@ -1524,13 +1524,13 @@ class CameraActivity : AppCompatActivity() {
                 
                 withContext(Dispatchers.Main) {
                     Log.i(TAG, "✅ FSRCNN model loaded successfully!")
-                    binding.lastCommandText.text = "Last Command: FSRCNN model loaded for super resolution"
+                    binding.lastCommandText.text = "最近指令：已加载 FSRCNN 超分辨率模型"
                 }
                 
             } catch (e: Exception) {
                 Log.e(TAG, "❌ Failed to load FSRCNN model: ${e.message}", e)
                 withContext(Dispatchers.Main) {
-                    showError("Failed to load super resolution model: ${e.message}")
+                    showError("加载超分辨率模型失败：${e.message}")
                 }
             }
         }
@@ -1542,14 +1542,14 @@ class CameraActivity : AppCompatActivity() {
                 val startTime = System.currentTimeMillis()
                 
                 // Update UI to show processing
-                binding.lastCommandText.text = "Last Command: 🎯 Capturing raw thermal frame..."
-                binding.captureEnhanceButton.text = "🔄 Processing..."
+                binding.lastCommandText.text = "最近指令：🎯 正在抓取原始热成像帧..."
+                binding.captureEnhanceButton.text = "🔄 处理中..."
                 binding.captureEnhanceButton.isEnabled = false
                 
                 // 🎯 CAPTURE RAW THERMAL FRAME (256x192 YUYV)
                 val rawFrameData = captureRawThermalFrame()
                 if (rawFrameData == null) {
-                    showError("Failed to capture raw thermal frame")
+                    showError("抓取原始热成像帧失败")
                     return@launch
                 }
                 
@@ -1572,15 +1572,15 @@ class CameraActivity : AppCompatActivity() {
                     showEnhancementResults(originalBitmap, enhancedBitmap, processingTime)
                     
                 } else {
-                    showError("Super resolution processing failed")
+                    showError("超分辨率处理失败")
                 }
                 
             } catch (e: Exception) {
                 Log.e(TAG, "Error in capture and enhance", e)
-                showError("Capture and enhance failed: ${e.message}")
+                showError("抓拍并增强失败：${e.message}")
             } finally {
                 // Reset button
-                binding.captureEnhanceButton.text = "📸 Capture & Enhance"
+                binding.captureEnhanceButton.text = "📸 抓拍并增强"
                 binding.captureEnhanceButton.isEnabled = true
             }
         }
@@ -1939,16 +1939,16 @@ class CameraActivity : AppCompatActivity() {
     private fun showEnhancementResults(original: Bitmap, enhanced: Bitmap, processingTime: Long) {
         // Create a simple dialog showing the results
         val dialog = AlertDialog.Builder(this)
-            .setTitle("🔥 Super Resolution Results")
-            .setMessage("Processing Time: ${processingTime}ms\n" +
+            .setTitle("🔥 超分辨率结果")
+            .setMessage("处理耗时：${processingTime}ms\n" +
                        "Original: ${original.width}x${original.height}\n" +
                        "Enhanced: ${enhanced.width}x${enhanced.height}\n" +
                        "Scale: ${enhanced.width / original.width.toFloat()}x")
-            .setPositiveButton("Save Both Images") { _, _ ->
+            .setPositiveButton("保存两张图像") { _, _ ->
                 checkStoragePermissionAndSave(original, enhanced, processingTime)
             }
-            .setNegativeButton("Close") { _, _ ->
-                binding.lastCommandText.text = "Last Command: Super resolution test completed (${processingTime}ms)"
+            .setNegativeButton("关闭") { _, _ ->
+                binding.lastCommandText.text = "最近指令：超分辨率测试完成（${processingTime}ms）"
             }
             .create()
         
@@ -1969,18 +1969,18 @@ class CameraActivity : AppCompatActivity() {
             }
             ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) -> {
                 AlertDialog.Builder(this)
-                    .setTitle("Storage Permission Required")
-                    .setMessage("This app needs storage permission to save enhanced images to your gallery.")
-                    .setPositiveButton("Grant Permission") { _, _ ->
+                    .setTitle("需要存储权限")
+                    .setMessage("本应用需要存储权限才能将增强后的图像保存到相册。")
+                    .setPositiveButton("授予权限") { _, _ ->
                         ActivityCompat.requestPermissions(
                             this,
                             arrayOf(Manifest.permission.WRITE_EXTERNAL_STORAGE),
                             STORAGE_PERMISSION_REQUEST_CODE
                         )
                     }
-                    .setNegativeButton("Cancel") { dialog, _ ->
+                    .setNegativeButton("取消") { dialog, _ ->
                         dialog.dismiss()
-                        showError("Storage permission is required to save images")
+                        showError("保存图像需要存储权限")
                     }
                     .show()
             }
@@ -2015,18 +2015,18 @@ class CameraActivity : AppCompatActivity() {
                 
                 withContext(Dispatchers.Main) {
                     if (originalUri != null && enhancedUri != null) {
-                        binding.lastCommandText.text = "Last Command: Images saved to gallery (${processingTime}ms)"
-                        showSuccess("✅ Both images saved to gallery successfully!")
+                        binding.lastCommandText.text = "最近指令：图像已保存到相册（${processingTime}ms）"
+                        showSuccess("✅ 两张图像已成功保存到相册！")
                         Log.i(TAG, "📸 Images saved - Original: $originalUri, Enhanced: $enhancedUri")
                     } else {
-                        showError("Failed to save one or both images to gallery")
+                        showError("保存一张或两张图像到相册失败")
                     }
                 }
                 
             } catch (e: Exception) {
                 Log.e(TAG, "Error saving images to gallery", e)
                 withContext(Dispatchers.Main) {
-                    showError("Error saving images: ${e.message}")
+                    showError("保存图像时出错：${e.message}")
                 }
             }
         }
@@ -2097,7 +2097,7 @@ class CameraActivity : AppCompatActivity() {
         // Get current device configuration
         val deviceConfig = currentDevice?.let { DeviceConfigs.configs[it.productId] }
         if (deviceConfig == null) {
-            showError("Cannot start recording: No device configuration found")
+            showError("无法开始录制：未找到设备配置")
             return
         }
         
@@ -2127,7 +2127,7 @@ class CameraActivity : AppCompatActivity() {
         // Check if recording actually started (for both modes)
         if (videoRecorder.isRecording()) {
             // Update UI
-            binding.recordButton.text = "⏹️ Stop"
+            binding.recordButton.text = "⏹️ 停止"
             binding.recordButton.backgroundTintList = getColorStateList(android.R.color.holo_red_dark)
             binding.pauseResumeButton.isEnabled = true
             binding.recordingDurationText.visibility = View.VISIBLE
@@ -2137,9 +2137,9 @@ class CameraActivity : AppCompatActivity() {
             
             val mode = if (recordingSurface == null) "direct" else "textureview"
             Log.i(TAG, "📹 Video recording started ($mode mode)")
-            showSuccess("Recording started!")
+            showSuccess("开始录制！")
         } else {
-            showError("Failed to start video recording")
+            showError("开始视频录制失败")
         }
     }
     
@@ -2147,28 +2147,28 @@ class CameraActivity : AppCompatActivity() {
         videoRecorder.stopRecording()
         
         // Update UI
-        binding.recordButton.text = "🔴 Record"
+        binding.recordButton.text = "🔴 录制"
         binding.recordButton.backgroundTintList = getColorStateList(android.R.color.holo_blue_bright)
         binding.pauseResumeButton.isEnabled = false
-        binding.pauseResumeButton.text = "⏸️ Pause"
+        binding.pauseResumeButton.text = "⏸️ 暂停"
         binding.recordingDurationText.visibility = View.GONE
         
         // Stop duration updates
         recordingDurationUpdateJob?.cancel()
         
         Log.i(TAG, "🛑 Video recording stopped")
-        showSuccess("Recording saved to gallery!")
+        showSuccess("录制已保存到相册！")
     }
     
     private fun pauseVideoRecording() {
         videoRecorder.pauseRecording()
-        binding.pauseResumeButton.text = "▶️ Resume"
+        binding.pauseResumeButton.text = "▶️ 继续"
         Log.i(TAG, "⏸️ Video recording paused")
     }
     
     private fun resumeVideoRecording() {
         videoRecorder.resumeRecording()
-        binding.pauseResumeButton.text = "⏸️ Pause"
+        binding.pauseResumeButton.text = "⏸️ 暂停"
         Log.i(TAG, "▶️ Video recording resumed")
     }
     
@@ -2181,7 +2181,7 @@ class CameraActivity : AppCompatActivity() {
                 val seconds = (duration / 1000) % 60
                 
                 withContext(Dispatchers.Main) {
-                    binding.recordingDurationText.text = "Duration: %02d:%02d".format(minutes, seconds)
+                    binding.recordingDurationText.text = "时长：%02d:%02d".format(minutes, seconds)
                     
                     // Change color when paused
                     val textColor = if (videoRecorder.isPaused()) {
@@ -2204,16 +2204,16 @@ class CameraActivity : AppCompatActivity() {
             }
             ActivityCompat.shouldShowRequestPermissionRationale(this, Manifest.permission.RECORD_AUDIO) -> {
                 AlertDialog.Builder(this)
-                    .setTitle("Microphone Permission Required")
-                    .setMessage("This app needs microphone permission to record audio with videos. You can still record silent videos if you deny this permission.")
-                    .setPositiveButton("Grant Permission") { _, _ ->
+                    .setTitle("需要麦克风权限")
+                    .setMessage("本应用需要麦克风权限才能为视频录制音频。如果拒绝此权限，仍可录制无声视频。")
+                    .setPositiveButton("授予权限") { _, _ ->
                         ActivityCompat.requestPermissions(
                             this,
                             arrayOf(Manifest.permission.RECORD_AUDIO),
                             AUDIO_PERMISSION_REQUEST_CODE
                         )
                     }
-                    .setNegativeButton("Record Silent Video") { _, _ ->
+                    .setNegativeButton("录制无声视频") { _, _ ->
                         // Start recording without audio
                         startVideoRecording()
                     }

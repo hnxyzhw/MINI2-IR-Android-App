@@ -8,7 +8,7 @@
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Manage Device Configurations"
+        android:text="管理设备配置"
         android:textSize="20sp"
         android:textStyle="bold"
         android:layout_marginBottom="16dp"/>
@@ -23,6 +23,6 @@
         android:id="@+id/addDeviceButton"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="Add New Device"/>
+        android:text="添加新设备"/>
 
-</LinearLayout> 
+</LinearLayout>
