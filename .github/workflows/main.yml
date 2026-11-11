@@ -27,11 +27,16 @@ jobs:
     - name: Grant execute permission for gradlew
       run: chmod +x gradlew
 
+    - name: Prepare Artifact Name
+      run: |
+        NAME="MINI2-Thermal-App-$(echo "$GITHUB_REF_NAME" | tr '/' '-')"
+        echo "ARTIFACT_NAME=$NAME" >> "$GITHUB_ENV"
+
     - name: Build Debug APK
       run: ./gradlew assembleDebug
 
     - name: Upload APK Artifact
       uses: actions/upload-artifact@v4
       with:
-        name: MINI2-Thermal-App-${{ replace(github.ref_name, '/', '-') }}
+        name: ${{ env.ARTIFACT_NAME }}
         path: app/build/outputs/apk/debug/app-debug.apk
